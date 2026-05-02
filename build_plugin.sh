@@ -38,11 +38,13 @@ if ! command -v gz &> /dev/null; then
     echo "Please install Gazebo Harmonic first."
     exit 1
 fi
+echo -e "${GREEN}✓${NC} gz command found"
 
 if ! command -v cmake &> /dev/null; then
     echo -e "${RED}Error: cmake command not found${NC}"
     exit 1
 fi
+echo -e "${GREEN}✓${NC} cmake command found"
 
 if ! command -v pkg-config &> /dev/null; then
     echo -e "${YELLOW}Warning: pkg-config not found${NC}"
@@ -50,6 +52,8 @@ else
     if ! pkg-config --exists gz-sim8 2>/dev/null; then
         echo -e "${YELLOW}Warning: gz-sim8 pkg-config not found${NC}"
         echo "Build may still work if CMake can find gz-sim8."
+    else
+        echo -e "${GREEN}✓${NC} gz-sim8 pkg-config found"
     fi
 fi
 
@@ -66,8 +70,11 @@ if [ "$PLATFORM" = "macos" ]; then
         exit 1
     fi
 
-    # also cmake to find qt5
+    echo -e "${GREEN}✓${NC} qt@5 found"
+
+    # help CMAKE find qt5
     export CMAKE_PREFIX_PATH="$(brew --prefix qt@5):$(brew --prefix):${CMAKE_PREFIX_PATH}"
+    echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
 fi
 
 if [ ! -f "$PLUGIN_DIR/CMakeLists.txt" ]; then
@@ -92,17 +99,17 @@ if [ "$PLATFORM" = "macos" ]; then
 fi
 
 if cmake "${CMAKE_ARGS[@]}"; then
-    echo -e "${GREEN} ${NC} CMake configuration successful"
+    echo -e "${GREEN}✓${NC} CMake configuration successful"
 else
-    echo -e "${RED} ${NC} CMake configuration failed"
+    echo -e "${RED}✗${NC} CMake configuration failed"
     exit 1
 fi
 
 echo -e "${YELLOW}[4/4] Building plugin...${NC}"
 if cmake --build . --parallel "$JOBS"; then
-    echo -e "${GREEN} ${NC} Build successful"
+    echo -e "${GREEN}✓${NC} Build successful"
 else
-    echo -e "${RED} ${NC} Build failed"
+    echo -e "${RED}✗${NC} Build failed"
     exit 1
 fi
 
@@ -115,12 +122,12 @@ echo ""
 PLUGIN_FILE="$(find "$BUILD_DIR" -maxdepth 2 -name "libBetaflightPlugin.${LIB_EXT}" | head -n 1)"
 
 if [ -n "$PLUGIN_FILE" ] && [ -f "$PLUGIN_FILE" ]; then
-    echo -e "${GREEN} ${NC} Plugin library created:"
+    echo -e "${GREEN}✓${NC} Plugin library created:"
     ls -lh "$PLUGIN_FILE"
     echo ""
     echo "Plugin location: $PLUGIN_FILE"
 else
-    echo -e "${RED} ${NC} Plugin library not found"
+    echo -e "${RED}✗${NC} Plugin library not found"
     echo "Searched for: libBetaflightPlugin.${LIB_EXT}"
     exit 1
 fi

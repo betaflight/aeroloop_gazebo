@@ -1,64 +1,112 @@
 #!/bin/bash
 # Build script for BetaflightPlugin
-# Run this after installing Gazebo Harmonic
+# Compatible with Linux and macOS
 
-set -e  # Exit on error
+set -e
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}BetaflightPlugin Build Script${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 
-# Get script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLUGIN_DIR="$SCRIPT_DIR/plugins"
 BUILD_DIR="$PLUGIN_DIR/build"
 
-# Check if Gazebo Harmonic is installed
+OS_NAME="$(uname -s)"
+
+if [ "$OS_NAME" = "Darwin" ]; then
+    PLATFORM="macos"
+    JOBS="$(sysctl -n hw.ncpu)"
+    LIB_EXT="dylib"
+else
+    PLATFORM="linux"
+    JOBS="$(nproc)"
+    LIB_EXT="so"
+fi
+
 echo -e "${YELLOW}[1/4] Checking prerequisites...${NC}"
+echo "Platform: $PLATFORM"
+
 if ! command -v gz &> /dev/null; then
     echo -e "${RED}Error: gz command not found${NC}"
-    echo "Please install Gazebo Harmonic first:"
-    echo "  ./install_gazebo_harmonic.sh"
+    echo "Please install Gazebo Harmonic first."
     exit 1
 fi
 echo -e "${GREEN}✓${NC} gz command found"
 
-if ! pkg-config --exists gz-sim8 2>/dev/null; then
-    echo -e "${YELLOW}Warning: gz-sim8 pkg-config not found${NC}"
-    echo "Build may fail. Make sure libgz-sim8-dev is installed."
+if ! command -v cmake &> /dev/null; then
+    echo -e "${RED}Error: cmake command not found${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✓${NC} cmake command found"
+
+if ! command -v pkg-config &> /dev/null; then
+    echo -e "${YELLOW}Warning: pkg-config not found${NC}"
+else
+    if ! pkg-config --exists gz-sim8 2>/dev/null; then
+        echo -e "${YELLOW}Warning: gz-sim8 pkg-config not found${NC}"
+        echo "Build may still work if CMake can find gz-sim8."
+    else
+        echo -e "${GREEN}✓${NC} gz-sim8 pkg-config found"
+    fi
 fi
 
-# Check if CMakeLists.txt exists
+if [ "$PLATFORM" = "macos" ]; then
+    if ! command -v brew &> /dev/null; then
+        echo -e "${RED}Error: Homebrew not found on macOS${NC}"
+        exit 1
+    fi
+
+    if ! brew --prefix qt@5 &> /dev/null; then
+        echo -e "${RED}Error: qt@5 not found${NC}"
+        echo "Install it with:"
+        echo "  brew install qt@5"
+        exit 1
+    fi
+
+    echo -e "${GREEN}✓${NC} qt@5 found"
+
+    # help CMAKE find qt5
+    export CMAKE_PREFIX_PATH="$(brew --prefix qt@5):$(brew --prefix):${CMAKE_PREFIX_PATH}"
+    echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
+fi
+
 if [ ! -f "$PLUGIN_DIR/CMakeLists.txt" ]; then
     echo -e "${RED}Error: CMakeLists.txt not found in $PLUGIN_DIR${NC}"
     exit 1
 fi
 
-# Create build directory
 echo -e "${YELLOW}[2/4] Setting up build directory...${NC}"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 echo "Build directory: $BUILD_DIR"
 
-# Run CMake
 echo -e "${YELLOW}[3/4] Configuring with CMake...${NC}"
-if cmake ..; then
+
+CMAKE_ARGS=(..)
+
+if [ "$PLATFORM" = "macos" ]; then
+    CMAKE_ARGS+=(
+        "-DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
+        "-DQt5_DIR=$(brew --prefix qt@5)/lib/cmake/Qt5"
+    )
+fi
+
+if cmake "${CMAKE_ARGS[@]}"; then
     echo -e "${GREEN}✓${NC} CMake configuration successful"
 else
     echo -e "${RED}✗${NC} CMake configuration failed"
     exit 1
 fi
 
-# Build
 echo -e "${YELLOW}[4/4] Building plugin...${NC}"
-if make -j$(nproc); then
+if cmake --build . --parallel "$JOBS"; then
     echo -e "${GREEN}✓${NC} Build successful"
 else
     echo -e "${RED}✗${NC} Build failed"
@@ -71,24 +119,35 @@ echo -e "${GREEN}Build Complete!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 
-# Check if plugin library was created
-if [ -f "$BUILD_DIR/libBetaflightPlugin.so" ]; then
+PLUGIN_FILE="$(find "$BUILD_DIR" -maxdepth 2 -name "libBetaflightPlugin.${LIB_EXT}" | head -n 1)"
+
+if [ -n "$PLUGIN_FILE" ] && [ -f "$PLUGIN_FILE" ]; then
     echo -e "${GREEN}✓${NC} Plugin library created:"
-    ls -lh "$BUILD_DIR/libBetaflightPlugin.so"
+    ls -lh "$PLUGIN_FILE"
     echo ""
-    echo "Plugin location: $BUILD_DIR/libBetaflightPlugin.so"
+    echo "Plugin location: $PLUGIN_FILE"
 else
     echo -e "${RED}✗${NC} Plugin library not found"
+    echo "Searched for: libBetaflightPlugin.${LIB_EXT}"
     exit 1
 fi
 
 echo ""
 echo "Next steps:"
-echo "1. Test the plugin with Gazebo:"
+echo "1. Test the plugin with Betaloop:"
 echo "   cd ../betaloop"
 echo "   python3 start.py"
 echo ""
+
 echo "2. Or test Gazebo manually:"
 echo "   export GZ_SIM_SYSTEM_PLUGIN_PATH=$BUILD_DIR:\$GZ_SIM_SYSTEM_PLUGIN_PATH"
-echo "   gz sim -r -v 4 <world_file>"
+
+if [ "$PLATFORM" = "macos" ]; then
+    echo "   gz sim -s -r -v 4 <world_file>"
+    echo "   # In another terminal:"
+    echo "   gz sim -g"
+else
+    echo "   gz sim -r -v 4 <world_file>"
+fi
+
 echo ""

@@ -15,8 +15,9 @@ echo -e "${GREEN}========================================${NC}"
 echo ""
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PLUGIN_DIR="$SCRIPT_DIR/plugins"
-BUILD_DIR="$PLUGIN_DIR/build"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+SRC_DIR="$PROJECT_DIR/src"
+BUILD_DIR="$PROJECT_DIR/build"
 
 OS_NAME="$(uname -s)"
 
@@ -38,13 +39,11 @@ if ! command -v gz &> /dev/null; then
     echo "Please install Gazebo Harmonic first."
     exit 1
 fi
-echo -e "${GREEN}✓${NC} gz command found"
 
 if ! command -v cmake &> /dev/null; then
     echo -e "${RED}Error: cmake command not found${NC}"
     exit 1
 fi
-echo -e "${GREEN}✓${NC} cmake command found"
 
 if ! command -v pkg-config &> /dev/null; then
     echo -e "${YELLOW}Warning: pkg-config not found${NC}"
@@ -77,15 +76,14 @@ if [ "$PLATFORM" = "macos" ]; then
     echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
 fi
 
-if [ ! -f "$PLUGIN_DIR/CMakeLists.txt" ]; then
-    echo -e "${RED}Error: CMakeLists.txt not found in $PLUGIN_DIR${NC}"
+if [ ! -f "$PROJECT_DIR/CMakeLists.txt" ]; then
+    echo -e "${RED}Error: CMakeLists.txt not found in $PROJECT_DIR${NC}"
     exit 1
 fi
 
 echo -e "${YELLOW}[2/4] Setting up build directory...${NC}"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
-echo "Build directory: $BUILD_DIR"
 
 echo -e "${YELLOW}[3/4] Configuring with CMake...${NC}"
 

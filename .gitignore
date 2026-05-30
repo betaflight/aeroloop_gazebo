@@ -1,7 +1,12 @@
-*.egg-info/
-*.pyc
+# gazebo artifacts
 **/.gazebo/*
+
+# sdf artifacts
 **/.sdformat/*
+
+# config artifacts
 **/.config/*
-**/build/*
+
+# build artifacts
+build/
 

@@ -502,7 +502,7 @@
 
     <!-- rotor_0 (front-right, CCW via BetaflightPlugin) -->
     <plugin name="gz::sim::systems::LiftDrag" filename="gz-sim-lift-drag-system">
-      <a0>0.025</a0>
+      <a0>0.05</a0>
       <alpha_stall>1.4</alpha_stall>
       <cla>0.2500</cla>
       <cda>0.004</cda>
@@ -518,7 +518,7 @@
       <link_name>rotor_0</link_name>
     </plugin>
     <plugin name="gz::sim::systems::LiftDrag" filename="gz-sim-lift-drag-system">
-      <a0>0.025</a0>
+      <a0>0.05</a0>
       <alpha_stall>1.4</alpha_stall>
       <cla>0.2500</cla>
       <cda>0.004</cda>
@@ -536,7 +536,7 @@
 
     <!-- rotor_1 (rear-left, CCW via BetaflightPlugin) -->
     <plugin name="gz::sim::systems::LiftDrag" filename="gz-sim-lift-drag-system">
-      <a0>0.025</a0>
+      <a0>0.05</a0>
       <alpha_stall>1.4</alpha_stall>
       <cla>0.2500</cla>
       <cda>0.004</cda>
@@ -552,7 +552,7 @@
       <link_name>rotor_1</link_name>
     </plugin>
     <plugin name="gz::sim::systems::LiftDrag" filename="gz-sim-lift-drag-system">
-      <a0>0.025</a0>
+      <a0>0.05</a0>
       <alpha_stall>1.4</alpha_stall>
       <cla>0.2500</cla>
       <cda>0.004</cda>
@@ -570,7 +570,7 @@
 
     <!-- rotor_2 (front-left, CW via BetaflightPlugin) -->
     <plugin name="gz::sim::systems::LiftDrag" filename="gz-sim-lift-drag-system">
-      <a0>0.025</a0>
+      <a0>0.05</a0>
       <alpha_stall>1.4</alpha_stall>
       <cla>0.2500</cla>
       <cda>0.004</cda>
@@ -586,7 +586,7 @@
       <link_name>rotor_2</link_name>
     </plugin>
     <plugin name="gz::sim::systems::LiftDrag" filename="gz-sim-lift-drag-system">
-      <a0>0.025</a0>
+      <a0>0.05</a0>
       <alpha_stall>1.4</alpha_stall>
       <cla>0.2500</cla>
       <cda>0.004</cda>
@@ -604,7 +604,7 @@
 
     <!-- rotor_3 (rear-right, CW via BetaflightPlugin) -->
     <plugin name="gz::sim::systems::LiftDrag" filename="gz-sim-lift-drag-system">
-      <a0>0.025</a0>
+      <a0>0.05</a0>
       <alpha_stall>1.4</alpha_stall>
       <cla>0.2500</cla>
       <cda>0.004</cda>
@@ -620,7 +620,7 @@
       <link_name>rotor_3</link_name>
     </plugin>
     <plugin name="gz::sim::systems::LiftDrag" filename="gz-sim-lift-drag-system">
-      <a0>0.025</a0>
+      <a0>0.05</a0>
       <alpha_stall>1.4</alpha_stall>
       <cla>0.2500</cla>
       <cda>0.004</cda>
@@ -653,8 +653,8 @@
         <vel_i_min>0</vel_i_min>
         <vel_cmd_max>838.0</vel_cmd_max>
         <vel_cmd_min>-838.0</vel_cmd_min>
-        <jointName>rotor_0_joint</jointName>
-        <turningDirection>ccw</turningDirection>
+        <jointName>rotor_3_joint</jointName>
+        <turningDirection>cw</turningDirection>
         <rotorVelocitySlowdownSim>1</rotorVelocitySlowdownSim>
       </rotor>
       <rotor id="1">
@@ -665,7 +665,7 @@
         <vel_i_min>0</vel_i_min>
         <vel_cmd_max>838.0</vel_cmd_max>
         <vel_cmd_min>-838.0</vel_cmd_min>
-        <jointName>rotor_1_joint</jointName>
+        <jointName>rotor_0_joint</jointName>
         <turningDirection>ccw</turningDirection>
         <rotorVelocitySlowdownSim>1</rotorVelocitySlowdownSim>
       </rotor>
@@ -677,8 +677,8 @@
         <vel_i_min>0</vel_i_min>
         <vel_cmd_max>838.0</vel_cmd_max>
         <vel_cmd_min>-838.0</vel_cmd_min>
-        <jointName>rotor_2_joint</jointName>
-        <turningDirection>cw</turningDirection>
+        <jointName>rotor_1_joint</jointName>
+        <turningDirection>ccw</turningDirection>
         <rotorVelocitySlowdownSim>1</rotorVelocitySlowdownSim>
       </rotor>
       <rotor id="3">
@@ -689,7 +689,7 @@
         <vel_i_min>0</vel_i_min>
         <vel_cmd_max>838.0</vel_cmd_max>
         <vel_cmd_min>-838.0</vel_cmd_min>
-        <jointName>rotor_3_joint</jointName>
+        <jointName>rotor_2_joint</jointName>
         <turningDirection>cw</turningDirection>
         <rotorVelocitySlowdownSim>1</rotorVelocitySlowdownSim>
       </rotor>
